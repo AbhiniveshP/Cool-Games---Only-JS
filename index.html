@@ -32,13 +32,32 @@
 
     <div class="container-2">
 
-        <h2>Challenge 2: Cat Generator</h2>
+        <h2>Challenge 2: Cat Generator & Remover</h2>
         <div class="flex-box-container-2">
+            
             <div>
                 <button class="btn btn-success" id= "cat-generator-btn" onclick="generateCat()">Generate Cat</button>
             </div>
+            <div>
+                <button class="btn btn-danger" id= "cat-removal-btn" onclick="removeCat()">Remove Cat</button>
+            </div>
+
         </div>
         <div class="flex-box-container-2" id="flex-cat-gen">                        
+        </div>
+
+    </div>
+
+    <div class="container-3">
+        
+        <h2>Challenge 3: Rock, Paper & Scissors</h2>
+
+        <div class="flex-box-rps" id="flex-box-rps-div">
+            
+            <img id="rock" src="http://images.clipartpanda.com/rock-clipart-clipart-harvestable-resources-rock.png" height=150 width=150 onclick="rpsGame(this)">
+            <img id="paper" src="https://i.pinimg.com/originals/8c/3b/8f/8c3b8f6f422df3877f0d254b813ec180.png" height=150 width=150 onclick="rpsGame(this)">
+            <img id="scissors" src="https://library.kissclipart.com/20180903/sae/kissclipart-scissors-clipart-hair-cutting-shears-scissors-clip-1f8b3f2e19febd5b.jpg" height=150 width=150 onclick="rpsGame(this)">
+
         </div>
 
     </div>
