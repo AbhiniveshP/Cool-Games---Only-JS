@@ -189,3 +189,47 @@ function buttonsRandom() {
     }
 
 }
+
+// Challenge 5: BlackJack
+
+let blackJackGame = {
+    'you': {'scoreSpan': '#your-blackjack-result', 'div': '#your-box', 'score': 0},
+    'dealer': {'scoreSpan': '#dealer-blackjack-result', 'div': '#dealer-box', 'score': 0},
+    'cards': ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'K', 'J', 'Q', 'A'],
+}
+
+const YOU = blackJackGame['you'];
+const DEALER = blackJackGame['dealer'];
+
+const hitSound = new Audio('static/sounds/swish.m4a');
+
+// the below line makes you avoid writing extra onEvent() stuff in HTML file.
+document.querySelector('#blackjack-hit-button').addEventListener('click', blackJackHit);
+document.querySelector('#blackjack-deal-button').addEventListener('click', blackJackDeal);
+
+function blackJackHit() {
+
+    let card = randomCard();
+    showCard(card, YOU);
+}
+
+function randomCard() {
+    let randomIndex = Math.floor( Math.random() * blackJackGame['cards'].length);
+    return blackJackGame['cards'][randomIndex];
+}
+
+function showCard(card, activePlayer) {
+    let cardImage = document.createElement('img');
+    cardImage.src = `static/images/${card}.png`;
+    document.querySelector(activePlayer['div']).appendChild(cardImage);
+    hitSound.play();
+}
+
+function blackJackDeal() {
+    
+    let yourImages = document.querySelector('#your-box').querySelectorAll('img');
+    for (let i = 0; i < yourImages.length; i++) yourImages[i].remove();
+    let dealarImages = document.querySelector('#dealer-box').querySelectorAll('img');
+    for (let i = 0; i < dealarImages.length; i++) dealarImages[i].remove();
+
+}
