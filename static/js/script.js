@@ -198,6 +198,11 @@ let blackJackGame = {
     'cards': ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'K', 'J', 'Q', 'A'],
     'cardsMap': {'2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8,
      '9': 9, '10': 10, 'K': 10, 'J': 10, 'Q': 10, 'A': [1, 11]},
+     'wins': 0,
+     'losses': 0,
+     'ties': 0,
+     'isStand': false,
+     'turnsOver': false,
 };
 
 const YOU = blackJackGame['you'];
@@ -215,21 +220,58 @@ document.querySelector('#blackjack-deal-button').addEventListener('click', black
 
 function blackJackHit() {
 
-    let card = randomCard();
-    showCard(card, YOU);
-    updateScore(card, YOU);
-    showScore(YOU);
-    console.log(YOU['score']);
+    if (blackJackGame['isStand'] === false) {
+        let card = randomCard();
+        showCard(card, YOU);
+        updateScore(card, YOU);
+        showScore(YOU);
+    }
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function blackJackStand() {
+
+    blackJackGame['isStand'] = true;
+
+    while (DEALER['score'] <= 15 && blackJackGame['isStand'] === true) {
+        let card = randomCard();
+        showCard(card, DEALER);
+        updateScore(card, DEALER);
+        showScore(DEALER);
+        await sleep(500);
+    }
+    
+    blackJackGame['turnsOver'] = true;
+    let winner = computeWinner();
+    showResult(winner);
 
 }
 
-function blackJackStand() {
+function blackJackDeal() {
 
-    let card = randomCard();
-    showCard(card, DEALER);
-    updateScore(card, DEALER);
-    showScore(DEALER);
-    console.log(DEALER['score']);
+    if (blackJackGame['turnsOver'] === true) {
+
+        blackJackGame['isStand'] = false;
+        let yourImages = document.querySelector('#your-box').querySelectorAll('img');
+        for (let i = 0; i < yourImages.length; i++) yourImages[i].remove();
+        let dealarImages = document.querySelector('#dealer-box').querySelectorAll('img');
+        for (let i = 0; i < dealarImages.length; i++) dealarImages[i].remove();
+
+        YOU['score'] = 0;
+        DEALER['score'] = 0;
+        document.querySelector(YOU['scoreSpan']).textContent = 0;
+        document.querySelector(DEALER['scoreSpan']).textContent = 0;
+        document.querySelector(YOU['scoreSpan']).style.color = 'gray';
+        document.querySelector(DEALER['scoreSpan']).style.color = 'gray';
+
+        document.querySelector('#blackjack-result').textContent = "Let's Play!";
+        document.querySelector('#blackjack-result').style.color = "black";
+
+        blackJackGame['turnsOver'] = true;
+    }   
 
 }
 
@@ -248,25 +290,6 @@ function showCard(card, activePlayer) {
     hitSound.play();
     
     }
-}
-
-function blackJackDeal() {
-    
-    winner = computeWinner();
-    showResult(winner);
-
-    let yourImages = document.querySelector('#your-box').querySelectorAll('img');
-    for (let i = 0; i < yourImages.length; i++) yourImages[i].remove();
-    let dealarImages = document.querySelector('#dealer-box').querySelectorAll('img');
-    for (let i = 0; i < dealarImages.length; i++) dealarImages[i].remove();
-
-    YOU['score'] = 0;
-    DEALER['score'] = 0;
-    document.querySelector(YOU['scoreSpan']).textContent = 0;
-    document.querySelector(DEALER['scoreSpan']).textContent = 0;
-    document.querySelector(YOU['scoreSpan']).style.color = 'gray';
-    document.querySelector(DEALER['scoreSpan']).style.color = 'gray';
-
 }
 
 function updateScore(card, activePlayer) {
@@ -290,34 +313,36 @@ function showScore(activePlayer) {
     else document.querySelector(activePlayer['scoreSpan']).textContent = activePlayer['score'];
 }
 
+// compute who wins and return the winner
+// also updates the wins, losses and ties
 function computeWinner() {
     
     let winner;
 
     if (YOU['score'] <= 21) {
         if (YOU['score'] > DEALER['score'] || DEALER['score'] > 21) {
-            console.log('You Won!');
+            blackJackGame['wins']++;
             winner = YOU;
         }
         else if (YOU['score'] < DEALER['score']) {
-            console.log('You Lost!');
+            blackJackGame['losses']++;
             winner = DEALER;
         }
         else if (YOU['score'] === DEALER['score']) {
-            console.log('Its a Tie!');
+            blackJackGame['ties']++;
         }
     }
 
     else if (YOU['score'] > 21 && DEALER['score'] <= 21) {
-        console.log('You Lost!');
         winner = DEALER;
+        blackJackGame['losses']++;
     }
 
     else if (YOU['score'] > 21 && DEALER['score'] > 21) {
-        console.log('Its a Tie!');
+        blackJackGame['ties']++;
     }
 
-    console.log('Winner is', winner);
+    console.log(blackJackGame);
     return winner;
 
 }
@@ -326,24 +351,30 @@ function showResult(winner) {
 
     let message, messageColor;
 
-    if (winner === YOU) {
-        message = 'You Won!';
-        messageColor = 'green';
-        winSound.play();
+    if (blackJackGame['turnsOver'] === true) {
+        if (winner === YOU) {
+            document.querySelector('#wins').textContent = blackJackGame['wins'];
+            message = 'You Won!';
+            messageColor = 'green';
+            winSound.play();
+        }
+    
+        else if (winner == DEALER) {
+            document.querySelector('#losses').textContent = blackJackGame['losses'];
+            message = 'You Lost!';
+            messageColor = 'red';
+            lossSound.play();
+        }
+    
+        else {
+            document.querySelector('#ties').textContent = blackJackGame['ties'];
+            message = 'Its a Tie!';
+            messageColor = 'black';
+        }
+    
+        document.querySelector('#blackjack-result').textContent = message;
+        document.querySelector('#blackjack-result').style.color = messageColor;
+    
     }
-
-    else if (winner == DEALER) {
-        message = 'You Lost!';
-        messageColor = 'red';
-        lossSound.play();
-    }
-
-    else {
-        message = 'Its a Tie!';
-        messageColor = 'black';
-    }
-
-    document.querySelector('#blackjack-result').textContent = message;
-    document.querySelector('#blackjack-result').style.color = messageColor;
-
+    
 }
